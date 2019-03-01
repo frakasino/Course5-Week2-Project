@@ -1,0 +1,35 @@
+
+Week two Course Project in Reproducible Research
+==================================================
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r, echo=FALSE, include=FALSE, results='hide'}
+library(dplyr)
+library(ggplot2)
+library(plyr)
+library(gridExtra)
+library(grid)
+```
+In this report, we use two months data about movement from an annoymous individual collected during the months of october and November 2012 and include  the number of the steps taken every 5 mins.
+
+I proceed by importing the data from a gitbub repository as shown below
+```{r}
+finame <- unzip("activity.zip", list=TRUE)$Name[1]
+data <- read.csv(unzip("activity.zip", finame))
+data$date<-as.Date(data$date)
+```
+
+Having downloaded the data, we perform the following descriptives.
+First, we compute the total number of steps taken per day and plot its histogram as shown below
+
+
+
+```{r}
+totalsteps=tapply(data$steps, data$date, sum)
+hist(totalsteps, xlab="Distribution of Total Daily Steps", main="Total Steps Per Day")
+```
+
+
