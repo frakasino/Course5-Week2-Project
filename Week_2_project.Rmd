@@ -60,7 +60,7 @@ data1[which.max(data1$daily_mean_steps),]
 data1=NULL
 ```
 
-The next part deals with imputing missing values.
+The next part deals with imputing missing values. <br />
 We proceed by reporting the total number of missing values below
 
 ```{r}
@@ -68,4 +68,33 @@ length(which((is.na(data$steps))))
 ```
 
 We now fill in all the missing values. Our strategy is to replace a missing value in an interval with the average of that interval averaged across all the days where such value is non-missing. For example if in a given day (say 1st Oct.), interval 10 is "NA", I will compute the average of interval 10 across all days where interval 10 is available and use that value as interval 10 for that given day (say 1st Oct.) <br />
-I will now create a new dataset with this filling strategy
+I will now create a new dataset with this filling strategy and construct an histogram of the total number of steps taken each day (just as before), and I will report  the new mean and median.
+```{r}
+data2=data
+data2$steps <- ifelse(is.na(data$steps), ave(na.omit(data$steps), data$interval, FUN=mean), data$steps)
+hist(tapply(data2$steps, data2$date, sum), xlab="Distribution of Total Daily Steps", main="Histogram of  Total Daily Steps")
+mean_steps2=mean(na.omit((tapply(data2$steps, data2$date, sum))))
+mean_steps2
+median_steps2=median(na.omit(as.vector(tapply(data2$steps, data2$date, sum))))
+median_steps2
+```
+
+By construction, the mean did not change because we were simply adding the mean of all days to an already existing mean and averaging. However, we see that after imputing with out strategy, the median is equal to our mean. This hows that the number of steps taken follows a normal distribution. That is, fewer steps in the early hours of a days, few steps in the late hours of the day and bulk of the steps during mid periods of the day. This pattern is not surprising. <br />
+<br />
+We now proceed to the final part of our analysis where we check if there are differences in activity patterns between weekdays and weekends.<br />
+<br />
+We proceed by creating a new factor variable in the dataset with two levels - weekend and weekdays indicating whether a given date is a weekday or weekend day. We then, make a panel timeseries plotof the 5 minutes interval averaged across all weekday days or weekend days (y-axis). See below
+
+```{r}
+data2$date=as.Date(data2$date)
+weekdays1 <- c('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday')
+data2$wkday <- factor((weekdays(data2$date) %in% weekdays1), levels = c(FALSE, TRUE), labels =c('Weekend', 'Weekday') )
+
+data3=ddply(data2[data2$wkday == "Weekday",], .(interval), summarize, daily_mean_steps= mean(steps))
+data4=ddply(data2[data2$wkday == "Weekend",], .(interval), summarize, daily_mean_steps= mean(steps))
+p1=qplot(data3$interval, data3$daily_mean_steps, geom="line", ylab="", xlab="Weekdays" )
+p2=qplot(data4$interval, data4$daily_mean_steps, geom="line", ylab="", xlab="Weekends")
+grid.arrange(p1, p2, nrow = 2)
+data3=NULL
+data4=NULL
+```
