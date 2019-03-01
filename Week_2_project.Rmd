@@ -23,13 +23,49 @@ data$date<-as.Date(data$date)
 ```
 
 Having downloaded the data, we perform the following descriptives.
-First, we compute the total number of steps taken per day and plot its histogram as shown below
-
-
-
+First, we compute the total number of steps taken per day and plot its histogram as shown below:
 ```{r}
 totalsteps=tapply(data$steps, data$date, sum)
 hist(totalsteps, xlab="Distribution of Total Daily Steps", main="Total Steps Per Day")
 ```
 
 
+The mean of the total number of steps is given by:
+
+```{r}
+mean_steps=mean(na.omit(as.vector(tapply(data$steps, data$date, sum))))
+mean_steps
+```
+
+and median of the total number of steps is given by:
+
+```{r}
+median_steps=median(na.omit(as.vector(tapply(data$steps, data$date, sum))))
+median_steps
+```
+
+We not make a time series plot of the average number of steps taken in each five minutes interval average across all days.
+
+```{r}
+data1=ddply(data, .(interval), summarize, 
+            daily_mean_steps= mean(na.omit(steps)))
+ggplot(data1, aes(interval, daily_mean_steps)) + geom_line() +
+       ylab("Number of Steps") + xlab("Interval")
+```
+
+We also show the 5-minute interval, on average across all the days in the dataset which contains the maximum number of steps below.
+
+```{r}
+data1[which.max(data1$daily_mean_steps),]
+data1=NULL
+```
+
+The next part deals with imputing missing values.
+We proceed by reporting the total number of missing values below
+
+```{r}
+length(which((is.na(data$steps))))
+```
+
+We now fill in all the missing values. Our strategy is to replace a missing value in an interval with the average of that interval averaged across all the days where such value is non-missing. For example if in a given day (say 1st Oct.), interval 10 is "NA", I will compute the average of interval 10 across all days where interval 10 is available and use that value as interval 10 for that given day (say 1st Oct.) <br />
+I will now create a new dataset with this filling strategy
