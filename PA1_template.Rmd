@@ -1,9 +1,15 @@
 
+---
+title: "RepResearch_peerAssignment"
+output: 
+  html_document:
+    keep_md: yes
+---
 Week two Course Project in Reproducible Research
 ==================================================
 
 
-```{r setup, include=FALSE}
+```{r setup, include=TRUE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 ```{r, echo=FALSE, include=FALSE, results='hide'}
